@@ -1,126 +1,197 @@
 <?php require 'auth_check.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Motor Vehicle Inventory System</title>
-    <link rel="stylesheet" href="../css/dashboard.css" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+    <header class="header">
         <div class="header-content">
-          <div class="logo-container">
-            <div class="logo">
-              <img src="../images/assets-logo.jpg" alt="AMD Logo" />
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="../images/assets-logo.jpg" alt="AMD Logo">
+                </div>
+                <div class="logo-text">
+                    <h1>Motor Vehicle Inventory System</h1>
+                </div>
             </div>
-            <div class="logo-text">
-              <h1>Motor Vehicle Inventory System</h1>
+            <div class="header-actions">
+                <div class="session-timer">
+                    Session expires in: <span id="session-timer">15:00</span>
+                </div>
+                <button id="logout-btn" class="logout-button">Sign Out</button>
             </div>
-          </div>
-          <div class="header-actions">
-            <div class="session-timer">
-              Session expires in: <span id="session-timer">15:00</span>
-            </div>
-            <button id="logout-btn" class="logout-button">
-              <span>Sign Out</span>
-            </button>
-          </div>
         </div>
-      </header>
+    </header>
 
-      <main class="main-content">
-        <aside class="sidebar">
-          <div class="user-profile">
-            <div class="user-avatar">
-              <div class="avatar-circle">A</div>
-            </div>
-            <div class="user-info">
-              <h3>Administrator</h3>
-              <p>Assets Management Division</p>
-            </div>
-          </div>
+    <nav class="sidenav">
+        <a href="#dashboard" class="nav-item active" data-page="dashboard">
+            Dashboard
+        </a>
+        <a href="#add-vehicle" class="nav-item" data-page="add-vehicle">
+            Add New Vehicle
+        </a>
+        <a href="#manage-vehicles" class="nav-item" data-page="manage-vehicles">
+            Manage Vehicles
+        </a>
+        <a href="#upload-excel" class="nav-item" data-page="upload-excel">
+            Upload Excel File
+        </a>
+        <a href="#settings" class="nav-item" data-page="settings">
+            Settings
+        </a>
+    </nav>
 
-          <div class="profile-details">
-            <h4>Profile Information</h4>
-            <div class="detail-item">
-              <span class="label">Email:</span>
-              <span class="value">admin@muntinlupa.gov.ph</span>
+    <main class="main-dashboard">
+        <div id="dashboard-page" class="page active">
+            <h2>Vehicle Inventory Overview</h2>
+            <div class="data-grid">
+                <!-- Grid content will be dynamically populated -->
             </div>
-            <div class="detail-item">
-              <span class="label">Role:</span>
-              <span class="value">System Administrator</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">Department:</span>
-              <span class="value">Assets Management Division</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">Last Login:</span>
-              <span class="value">May 25, 2025 - 2:30 PM</span>
-            </div>
-            <div class="status-item">
-              <div class="status-indicator"></div>
-              <span class="status-text">Active Session</span>
-            </div>
-          </div>
-        </aside>
-
-        <div class="dashboard-content">
-          <div class="dashboard-text">
-            <h1>DASHBOARD</h1>
-            <p>Assets Management Division</p>
-          </div>
-
-          <div class="file-uploader">
-            <h3>XML File Upload</h3>
-            <div class="upload-area" id="upload-area">
-              <div class="upload-icon">📁</div>
-              <p>Drag & drop your XML file here or click to browse</p>
-              <input type="file" id="xml-file-input" accept=".xml" hidden />
-              <button type="button" class="browse-button" onclick="document.getElementById('xml-file-input').click()">
-                Browse Files
-              </button>
-            </div>
-            <div class="file-info" id="file-info" style="display: none;">
-              <p><strong>Selected File:</strong> <span id="file-name"></span></p>
-              <p><strong>File Size:</strong> <span id="file-size"></span></p>
-              <button type="button" class="upload-button" id="upload-button">Upload XML</button>
-            </div>
-            <div class="upload-status" id="upload-status"></div>
-          </div>
         </div>
-      </main>
 
-      <footer class="footer">
-        <div class="footer-content">
-          <p>© 2025 Assets Management Division. All Rights Reserved.</p>
-          <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Use</a>
-            <a href="#">Help</a>
-          </div>
+        <div id="add-vehicle-page" class="page hidden">
+            <h2>Add New Vehicle</h2>
+            <form id="vehicle-form" class="form-section">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="oldPropertyNumber">Old Property Number</label>
+                        <input type="text" id="oldPropertyNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="acquiredDate">Acquired Date</label>
+                        <input type="date" id="acquiredDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estimatedLife">Estimated Life (years)</label>
+                        <input type="number" id="estimatedLife" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="center">Respective Center</label>
+                        <input type="text" id="center" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="acquisitionCost">Acquisition Cost</label>
+                        <input type="number" id="acquisitionCost" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="carryingAmount">Carrying Amount</label>
+                        <input type="number" id="carryingAmount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPropertyNumber">New Property Number</label>
+                        <input type="text" id="newPropertyNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location/Whereabouts</label>
+                        <input type="text" id="location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="condition">Condition</label>
+                        <select id="condition" required>
+                            <option value="">Select condition</option>
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="remarks">Remarks</label>
+                        <textarea id="remarks"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="driverName">Driver's Name</label>
+                        <input type="text" id="driverName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registeredName">Registered Name in PAR</label>
+                        <input type="text" id="registeredName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="certificateNumber">Certificate Number</label>
+                        <input type="text" id="certificateNumber" required>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">Save Vehicle</button>
+                    <button type="reset" class="btn btn-secondary">Clear Form</button>
+                </div>
+            </form>
         </div>
-      </footer>
-    </div>
 
-    <script>
-      const logoutBtn = document.getElementById('logout-btn');
-      let sessionTimeout;
-      let sessionInterval;
+        <div id="manage-vehicles-page" class="page hidden">
+            <h2>Manage Vehicles</h2>
+            <div class="data-grid">
+                <!-- Vehicle list will be dynamically populated -->
+            </div>
+        </div>
 
-      logoutBtn.addEventListener('click', function () {
-        if (confirm('Are you sure you want to sign out?')) {
-          clearTimeout(sessionTimeout);
-          clearInterval(sessionInterval);
-          localStorage.removeItem('isLoggedIn');
-          localStorage.removeItem('username');
-          sessionStorage.clear();
-          window.location.href = 'logout.php';
-        }
-      });
-    </script>
+        <div id="upload-excel-page" class="page hidden">
+            <h2>Upload Excel File</h2>
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="excelFile">Select Excel File</label>
+                    <input type="file" id="excelFile" accept=".xlsx,.xls">
+                </div>
+                <div class="action-buttons">
+                    <button id="uploadExcel" class="btn btn-primary">Upload</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-page" class="page hidden">
+            <h2>Settings</h2>
+            <div class="settings-panel">
+                <div class="settings-section">
+                    <h3>Profile Settings</h3>
+                    <form id="profile-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Change Password</h3>
+                    <form id="password-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
     <script src="../js/dashboard.js"></script>
-  </body>
+</body>
 </html>

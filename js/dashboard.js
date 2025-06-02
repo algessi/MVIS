@@ -1,177 +1,192 @@
-// Session timeout management
+// Session Management
 let sessionTimeout;
-let sessionInterval;
-const TIMEOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+const SESSION_DURATION = 15 * 60 * 1000; // 15 minutes
 
-// Check authentication before allowing access
-function checkAuth() {
-  const isLoggedIn = localStorage.getItem('isLoggedIn');
-  if (!isLoggedIn || isLoggedIn !== 'true') {
-    window.location.href = 'index.html';
-    return false;
-  }
-  return true;
-}
-
-function resetSessionTimeout() {
-  clearTimeout(sessionTimeout);
-  clearInterval(sessionInterval);
-  sessionTimeout = setTimeout(handleSessionTimeout, TIMEOUT_DURATION);
-  startSessionCountdown(TIMEOUT_DURATION);
+function resetSession() {
+    clearTimeout(sessionTimeout);
+    sessionTimeout = setTimeout(handleSessionTimeout, SESSION_DURATION);
+    updateSessionTimer(SESSION_DURATION);
 }
 
 function handleSessionTimeout() {
-  alert('Your session has expired due to inactivity. You will be redirected to the login page.');
-  logout();
+    alert('Your session has expired. Please log in again.');
+    window.location.href = '../index.html';
 }
 
-function startSessionCountdown(duration) {
-  const timerElement = document.getElementById('session-timer');
-  let timeLeft = duration;
+function updateSessionTimer(duration) {
+    const timerElement = document.getElementById('session-timer');
+    let timeLeft = duration;
 
-  sessionInterval = setInterval(() => {
-    const minutes = Math.floor(timeLeft / 60000);
-    const seconds = Math.floor((timeLeft % 60000) / 1000);
-    timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const updateDisplay = () => {
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft > 0) {
+            timeLeft -= 1000;
+            setTimeout(updateDisplay, 1000);
+        }
+    };
 
-    if (timeLeft <= 0) {
-      clearInterval(sessionInterval);
-      handleSessionTimeout();
-      return;
-    }
-
-    timeLeft -= 1000;
-  }, 1000);
+    updateDisplay();
 }
 
-// File upload functionality
-function initializeFileUpload() {
-  const uploadArea = document.getElementById('upload-area');
-  const fileInput = document.getElementById('xml-file-input');
-  const fileInfo = document.getElementById('file-info');
-  const fileName = document.getElementById('file-name');
-  const fileSize = document.getElementById('file-size');
-  const uploadButton = document.getElementById('upload-button');
-  const uploadStatus = document.getElementById('upload-status');
+// Navigation
+function setupNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const pages = document.querySelectorAll('.page');
 
-  if (!uploadArea || !fileInput) return;
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Update active nav item
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
 
-  uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.classList.add('drag-over');
-  });
+            // Show corresponding page
+            const targetPage = item.getAttribute('data-page');
+            pages.forEach(page => {
+                page.classList.add('hidden');
+                if (page.id === `${targetPage}-page`) {
+                    page.classList.remove('hidden');
+                }
+            });
 
-  uploadArea.addEventListener('dragleave', () => {
-    uploadArea.classList.remove('drag-over');
-  });
-
-  uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('drag-over');
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileSelection(files[0]);
-    }
-  });
-
-  fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-      handleFileSelection(e.target.files[0]);
-    }
-  });
-
-  uploadButton?.addEventListener('click', () => {
-    const file = fileInput.files[0];
-    if (file) {
-      uploadXMLFile(file);
-    }
-  });
-
-  function handleFileSelection(file) {
-    if (!file.name.toLowerCase().endsWith('.xml')) {
-      uploadStatus.innerHTML = '<p style="color: var(--error-500);">Please select a valid XML file.</p>';
-      return;
-    }
-
-    fileName.textContent = file.name;
-    fileSize.textContent = formatFileSize(file.size);
-    fileInfo.style.display = 'block';
-    uploadStatus.innerHTML = '';
-    
-    resetSessionTimeout();
-  }
-
-  function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  function uploadXMLFile(file) {
-    uploadStatus.innerHTML = '<p style="color: var(--primary-600);">Uploading file...</p>';
-    uploadButton.disabled = true;
-
-    setTimeout(() => {
-      uploadStatus.innerHTML = '<p style="color: var(--success-500);">✓ File uploaded successfully!</p>';
-      uploadButton.disabled = false;
-      resetSessionTimeout();
-    }, 2000);
-  }
-}
-
-function logout() {
-  fetch('php/logout.php')
-    .then(() => {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('username');
-      sessionStorage.clear();
-      window.location.href = 'index.html';
-    })
-    .catch(() => {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('username');
-      sessionStorage.clear();
-      window.location.href = 'index.html';
+            resetSession();
+        });
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  if (!checkAuth()) {
-    return;
-  }
+// Form Handling
+function setupForms() {
+    const vehicleForm = document.getElementById('vehicle-form');
+    if (vehicleForm) {
+        vehicleForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                oldPropertyNumber: document.getElementById('oldPropertyNumber').value,
+                description: document.getElementById('description').value,
+                acquiredDate: document.getElementById('acquiredDate').value,
+                estimatedLife: document.getElementById('estimatedLife').value,
+                center: document.getElementById('center').value,
+                acquisitionCost: document.getElementById('acquisitionCost').value,
+                carryingAmount: document.getElementById('carryingAmount').value,
+                newPropertyNumber: document.getElementById('newPropertyNumber').value,
+                location: document.getElementById('location').value,
+                condition: document.getElementById('condition').value,
+                remarks: document.getElementById('remarks').value,
+                driverName: document.getElementById('driverName').value,
+                registeredName: document.getElementById('registeredName').value,
+                certificateNumber: document.getElementById('certificateNumber').value
+            };
 
-  resetSessionTimeout();
+            // Send to backend
+            fetch('../php/save_vehicle.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Vehicle data saved successfully!');
+                    vehicleForm.reset();
+                } else {
+                    alert('Error saving vehicle data: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving the data.');
+            });
 
-  ['click', 'keydown', 'mousemove', 'touchstart'].forEach(event => {
-    document.addEventListener(event, resetSessionTimeout);
-  });
+            resetSession();
+        });
+    }
 
-  const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', function() {
-      if (confirm('Are you sure you want to sign out?')) {
-        clearTimeout(sessionTimeout);
-        clearInterval(sessionInterval);
-        logout();
-      }
+    // Profile form handling
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Handle profile update
+            resetSession();
+        });
+    }
+
+    // Password form handling
+    const passwordForm = document.getElementById('password-form');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Handle password change
+            resetSession();
+        });
+    }
+}
+
+// Excel Upload Handling
+function setupExcelUpload() {
+    const uploadButton = document.getElementById('uploadExcel');
+    if (uploadButton) {
+        uploadButton.addEventListener('click', () => {
+            const fileInput = document.getElementById('excelFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('excel_file', file);
+
+            fetch('../php/upload_excel.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('File uploaded and processed successfully!');
+                    fileInput.value = '';
+                } else {
+                    alert('Error processing file: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while uploading the file.');
+            });
+
+            resetSession();
+        });
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    setupNavigation();
+    setupForms();
+    setupExcelUpload();
+    resetSession();
+
+    // Set up session refresh on user activity
+    ['click', 'keypress', 'mousemove', 'touchstart'].forEach(event => {
+        document.addEventListener(event, resetSession);
     });
-  }
 
-  initializeFileUpload();
-
-  const username = localStorage.getItem('username');
-  if (username) {
-    const userInitial = document.querySelector('.avatar-circle');
-    if (userInitial) {
-      userInitial.textContent = username.charAt(0).toUpperCase();
+    // Handle logout
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to log out?')) {
+                window.location.href = '../php/logout.php';
+            }
+        });
     }
-    
-    const userName = document.querySelector('.user-info h3');
-    if (userName) {
-      userName.textContent = username;
-    }
-  }
 });
