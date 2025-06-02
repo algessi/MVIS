@@ -29,6 +29,22 @@
     </header>
 
     <nav class="sidenav">
+        <!-- User Profile Section -->
+        <div class="user-profile-section">
+            <div class="user-avatar">
+                <div class="avatar-circle">
+                    <?php echo isset($_SESSION['username']) ? strtoupper(substr($_SESSION['username'], 0, 1)) : 'U'; ?>
+                </div>
+            </div>
+            <div class="user-info">
+                <h3><?php echo isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'User'; ?></h3>
+                <p><?php echo isset($_SESSION['role']) ? $_SESSION['role'] : 'Role'; ?></p>
+            </div>
+        </div>
+
+        <a href="#profile" class="nav-item" data-page="profile">
+            My Profile
+        </a>
         <a href="#dashboard" class="nav-item active" data-page="dashboard">
             Dashboard
         </a>
@@ -47,6 +63,59 @@
     </nav>
 
     <main class="main-dashboard">
+        <!-- Profile Page -->
+        <div id="profile-page" class="page hidden">
+            <h2>My Profile</h2>
+            <div class="profile-section">
+                <form id="profile-form" class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" value="<?php echo isset($_SESSION['fullname']) ? $_SESSION['fullname'] : ''; ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" value="<?php echo isset($_SESSION['email']) ? $_SESSION['email'] : ''; ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" value="<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <input type="text" id="role" name="role" value="<?php echo isset($_SESSION['role']) ? $_SESSION['role'] : ''; ?>" readonly>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
+
+                <div class="password-section">
+                    <h3>Change Password</h3>
+                    <form id="password-form" class="form-section">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="currentPassword">Current Password</label>
+                                <input type="password" id="currentPassword" name="currentPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword" name="newPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm New Password</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div id="dashboard-page" class="page active">
             <h2>Vehicle Inventory Overview</h2>
             <div class="data-grid">
